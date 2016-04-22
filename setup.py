@@ -20,14 +20,14 @@ from setuptools import setup, Command
 
 DEVENV = 'devenv'
 PIP = path.join(DEVENV, 'bin', 'pip')
-DEV_DEPENDENCIES = ['pytest', 'tox']
+DEV_DEPENDENCIES = ['pytest', 'mock', 'tox']
 
 
 class devenv(Command):
     """Set up development virtualenv."""
 
-    description = "set up development virtualenv"
-    user_options = [('python=', 'p', "the python interpreter to use")]
+    description = 'set up development virtualenv'
+    user_options = [('python=', 'p', 'the python interpreter to use')]
 
     def initialize_options(self):
         self.python = 'python'
@@ -45,9 +45,9 @@ setup(
     name='python-abp',
     version='0.0.1',
     description='ABP python tools',
-    long_description="A library for working with Adblock Plus filter lists.",
-    author='Vasily Kuznetsov',
-    author_email='vasily@adblockplus.org',
+    long_description='A library for working with Adblock Plus filter lists.',
+    author='Eyeo GmbH',
+    author_email='info@adblockplus.org',
     url='https://hg.adblockplus.org/python-abp/',
     packages=['abp', 'abp.filters'],
     cmdclass={'devenv': devenv},
