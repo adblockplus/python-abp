@@ -51,6 +51,9 @@ setup(
     url='https://hg.adblockplus.org/python-abp/',
     packages=['abp', 'abp.filters'],
     cmdclass={'devenv': devenv},
+    entry_points={
+        'console_scripts': ['flrender=abp.filters.render_script:main']
+    },
     include_package_data=True,
     license='GPLv3',
     zip_safe=False,
