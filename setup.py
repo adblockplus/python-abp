@@ -23,7 +23,7 @@ PIP = path.join(DEVENV, 'bin', 'pip')
 DEV_DEPENDENCIES = ['pytest', 'mock', 'tox']
 
 
-class devenv(Command):
+class DevEnvCommand(Command):
     """Set up development virtualenv."""
 
     description = 'set up development virtualenv'
@@ -50,7 +50,7 @@ setup(
     author_email='info@adblockplus.org',
     url='https://hg.adblockplus.org/python-abp/',
     packages=['abp', 'abp.filters'],
-    cmdclass={'devenv': devenv},
+    cmdclass={'devenv': DevEnvCommand},
     entry_points={
         'console_scripts': ['flrender=abp.filters.render_script:main']
     },

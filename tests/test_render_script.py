@@ -65,8 +65,8 @@ def rootdir(tmpdir):
 @pytest.fixture
 def webserver_port(tmpdir, request):
     """Serve fragments via HTTP on a random port (return the port number)."""
-    Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-    httpd = SocketServer.TCPServer(("", 0), Handler)
+    handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+    httpd = SocketServer.TCPServer(('', 0), handler)
     port = httpd.socket.getsockname()[1]
     # Create some files to serve.
     webroot = tmpdir.join('webroot')

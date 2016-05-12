@@ -58,11 +58,11 @@ Filter = line_type('Filter', 'expression', '{.expression}')
 Include = line_type('Include', 'target', '%include {0.target}%')
 
 
-METADATA_REGEXP = re.compile('!\s*(\w+)\s*:\s*(.*)')
+METADATA_REGEXP = re.compile(r'!\s*(\w+)\s*:\s*(.*)')
 METADATA_KEYS = {'Homepage', 'Title', 'Expires', 'Checksum', 'Redirect',
                  'Version'}
-INCLUDE_REGEXP = re.compile('%include\s+(.+)%')
-HEADER_REGEXP = re.compile('\[(Adblock(?:\s*Plus\s*[\d\.]+?)?)\]', flags=re.I)
+INCLUDE_REGEXP = re.compile(r'%include\s+(.+)%')
+HEADER_REGEXP = re.compile(r'\[(Adblock(?:\s*Plus\s*[\d\.]+?)?)\]', flags=re.I)
 
 
 def _parse_comment(text):

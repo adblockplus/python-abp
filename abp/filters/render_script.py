@@ -14,7 +14,7 @@
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import codecs
+import io
 import logging
 import sys
 
@@ -55,7 +55,7 @@ def main():
 
     try:
         lines = render_filterlist(args.infile, sources, TopSource())
-        with codecs.open(args.outfile, 'wb', encoding='utf-8') as out_fp:
+        with io.open(args.outfile, 'w', encoding='utf-8') as out_fp:
             for line in lines:
                 out_fp.write(line.to_string() + '\n')
     except (MissingHeader, NotFound, IncludeError) as exc:

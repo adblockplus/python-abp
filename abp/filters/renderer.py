@@ -59,13 +59,13 @@ def _get_and_parse_fragment(name, sources, default_source, include_stack=[]):
         try:
             source = sources[source_name]
         except KeyError:
-            raise IncludeError('Unknown source: \'{}\''.format(source_name),
+            raise IncludeError("Unknown source: '{}'".format(source_name),
                                include_stack)
     else:
         source, name_in_source = default_source, name
 
     if source is None:
-        raise IncludeError('Source name is absent in: \'{}\''.format(name),
+        raise IncludeError("Source name is absent in: '{}'".format(name),
                            include_stack)
 
     return (parse_filterlist(source.get(name_in_source)),
@@ -101,7 +101,7 @@ def _process_timestamps(lines):
     """Convert timestamp markers into actual timestamps."""
     for line in lines:
         if line.type == 'comment' and '%timestamp%' in line.text:
-            timestamp = time.strftime("%d %b %Y %H:%M UTC", time.gmtime())
+            timestamp = time.strftime('%d %b %Y %H:%M UTC', time.gmtime())
             yield Comment(text=line.text.replace('%timestamp%', timestamp))
         else:
             yield line
@@ -117,7 +117,7 @@ def _first_and_rest(iterable):
 def _insert_version(lines):
     """Insert metadata comment with version (a.k.a. date)."""
     first_line, rest = _first_and_rest(lines)
-    version = Metadata('Version', time.strftime("%Y%m%d%H%M", time.gmtime()))
+    version = Metadata('Version', time.strftime('%Y%m%d%H%M', time.gmtime()))
     return itertools.chain([first_line, version], rest)
 
 
@@ -151,8 +151,8 @@ def _insert_checksum(lines):
             md5sum.update(line.to_string().encode('utf-8') + b'\n')
         yield line
 
-    sum = base64.b64encode(md5sum.digest()).rstrip(b'=')
-    yield Metadata('Checksum', sum.decode('utf-8'))
+    checksum = base64.b64encode(md5sum.digest()).rstrip(b'=')
+    yield Metadata('Checksum', checksum.decode('utf-8'))
 
 
 def _validate(lines):

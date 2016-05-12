@@ -15,7 +15,7 @@
 
 """Helper classes that handle IO for parsing and rendering."""
 
-import codecs
+import io
 from os import path
 
 try:
@@ -53,20 +53,19 @@ class FSSource(object):
         parts = path_in_source.split('/')
         full_path = path.abspath(path.join(self.root_path, *parts))
         if not full_path.startswith(self.root_path):
-            raise ValueError('Invalid path: \'{}\''.format(path_in_source))
+            raise ValueError("Invalid path: '{}'".format(path_in_source))
         return full_path
 
     def get(self, path_in_source):
         full_path = self.resolve_path(path_in_source)
         try:
-            with codecs.open(full_path, encoding=self.encoding) as open_file:
+            with io.open(full_path, encoding=self.encoding) as open_file:
                 for line in open_file:
                     yield line.rstrip()
         except IOError as exc:
             if exc.errno == 2:  # No such file or directory.
-                raise NotFound('File not found: \'{}\''.format(full_path))
-            else:
-                raise exc
+                raise NotFound("File not found: '{}'".format(full_path))
+            raise exc
 
 
 class TopSource(FSSource):
@@ -114,7 +113,6 @@ class WebSource(object):
                 yield line.decode(encoding).rstrip()
         except HTTPError as err:
             if err.code == 404:
-                raise NotFound('HTTP 404 Not found: \'{}:{}\''
+                raise NotFound("HTTP 404 Not found: '{}:{}'"
                                .format(self.protocol, path_in_source))
-            else:
-                raise err
+            raise err
