@@ -34,12 +34,14 @@ class ParseError(Exception):
         self.error = error
 
 
-def line_type(name, field_names, format_string):
+def _line_type(name, field_names, format_string):
     """Define a line type.
 
     :param name: The name of the line type to define.
     :param field_names: A sequence of field names or one space-separated
         string that contains all field names.
+    :param format_string: A format specifier for converting this line type
+        back to string representation.
     :returns: Class created with `namedtuple` that has `.type` set to
         lowercased `name` and supports conversion back to string with
         `.to_string()` method.
@@ -50,12 +52,12 @@ def line_type(name, field_names, format_string):
     return lt
 
 
-Header = line_type('Header', 'version', '[{.version}]')
-EmptyLine = line_type('EmptyLine', '', '')
-Comment = line_type('Comment', 'text', '! {.text}')
-Metadata = line_type('Metadata', 'key value', '! {0.key}: {0.value}')
-Filter = line_type('Filter', 'expression', '{.expression}')
-Include = line_type('Include', 'target', '%include {0.target}%')
+Header = _line_type('Header', 'version', '[{.version}]')
+EmptyLine = _line_type('EmptyLine', '', '')
+Comment = _line_type('Comment', 'text', '! {.text}')
+Metadata = _line_type('Metadata', 'key value', '! {0.key}: {0.value}')
+Filter = _line_type('Filter', 'expression', '{.expression}')
+Include = _line_type('Include', 'target', '%include {0.target}%')
 
 
 METADATA_REGEXP = re.compile(r'!\s*(\w+)\s*:\s*(.*)')
@@ -90,7 +92,7 @@ def parse_line(line_text):
     """Parse one line of a filter list.
 
     :param line_text: Line of a filter list (must be a unicode string).
-    :returns: Parsed line object (see `line_type`).
+    :returns: Parsed line object (see `_line_type`).
     :raises ParseError: If the line can't be successfully parsed.
     """
     content = line_text.strip()
