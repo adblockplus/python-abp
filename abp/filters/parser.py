@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Parser for ABP filterlist format."""
+
 from __future__ import unicode_literals
 
 import re
@@ -21,8 +23,8 @@ from collections import namedtuple
 __all__ = [
     'FILTER_ACTION',
     'FILTER_OPTION',
-    'ParseError',
     'SELECTOR_TYPE',
+    'ParseError',
     'parse_filterlist',
     'parse_line',
 ]
@@ -31,8 +33,13 @@ __all__ = [
 class ParseError(Exception):
     """Exception thrown by the parser when it encounters invalid input.
 
-    :param error: Description of the error.
-    :param text: The text which was being parsed when an error occurred.
+    Parameters
+    ----------
+    error : str
+        Description of the error.
+    text : str
+        The source text that caused an error.
+
     """
 
     def __init__(self, error, text):
@@ -42,8 +49,8 @@ class ParseError(Exception):
 
 
 # Constants related to filters (see https://adblockplus.org/filters).
-class SELECTOR_TYPE:  # flake8: noqa (This class is an enumeration constant).
-    """Selector types"""
+class SELECTOR_TYPE:  # flake8: noqa (this is a namespace of constants).
+    """Selector type constants."""
     URL_PATTERN = 'url-pattern'  # Normal URL patterns.
     URL_REGEXP = 'url-regexp'    # Regular expressions for URLs.
     CSS = 'css'                  # CSS selectors for hiding filters.
@@ -51,16 +58,16 @@ class SELECTOR_TYPE:  # flake8: noqa (This class is an enumeration constant).
     ABP_SIMPLE = 'abp-simple'    # Simplified element hiding syntax.
 
 
-class FILTER_ACTION:  # flake8: noqa (This class is an enumeration constant).
-    """Filter actions"""
+class FILTER_ACTION:  # flake8: noqa (this is a namespace of constants).
+    """Filter action constants."""
     BLOCK = 'block'              # Block the request.
     ALLOW = 'allow'              # Allow the request (whitelist).
     HIDE = 'hide'                # Hide selected element(s).
     SHOW = 'show'                # Show selected element(s) (whitelist).
 
 
-class FILTER_OPTION:  # flake8: noqa (This class is an enumeration constant).
-    """Filter options"""
+class FILTER_OPTION:  # flake8: noqa (this is a namespace of constants).
+    """Filter option constants."""
     # Resource types.
     OTHER = 'other'
     SCRIPT = 'script'
@@ -98,14 +105,24 @@ class FILTER_OPTION:  # flake8: noqa (This class is an enumeration constant).
 def _line_type(name, field_names, format_string):
     """Define a line type.
 
-    :param name: The name of the line type to define.
-    :param field_names: A sequence of field names or one space-separated
-        string that contains all field names.
-    :param format_string: A format specifier for converting this line type
-        back to string representation.
-    :returns: Class created with `namedtuple` that has `.type` set to
-        lowercased `name` and supports conversion back to string with
-        `.to_string()` method.
+    Parameters
+    ----------
+    name: str
+        The name of the line type to define.
+    field_names: str or list
+        A sequence of field names or one space-separated string that contains
+        all field names.
+    format_string: str
+        A format specifier for converting this line type back to string
+        representation.
+
+    Returns
+    -------
+    class
+        Class created with `namedtuple` that has `.type` set to lowercased
+        `name` and supports conversion back to string with `.to_string()`
+        method.
+
     """
     lt = namedtuple(name, field_names)
     lt.type = name.lower()
@@ -223,8 +240,16 @@ def _parse_hiding_filter(text, domain, type_flag, selector_value):
 def parse_filter(text):
     """Parse one filter.
 
-    :param text: Text representation of a filter.
-    :returns: Filter object.
+    Parameters
+    ----------
+    text : str
+        Filter to parse in ABP filter list syntax.
+
+    Returns
+    -------
+    namedtuple
+        Parsed filter.
+
     """
     if '#' in text:
         match = HIDING_FILTER_REGEXP.search(text)
@@ -236,9 +261,20 @@ def parse_filter(text):
 def parse_line(line_text):
     """Parse one line of a filter list.
 
-    :param line_text: Line of a filter list (must be a unicode string).
-    :returns: Parsed line object (see `_line_type`).
-    :raises ParseError: If the line can't be successfully parsed.
+    Parameters
+    ----------
+    line_text : str
+        Line of a filter list.
+
+    Returns
+    -------
+    namedtuple
+        Parsed line (see `_line_type`).
+
+    Raises
+    ------
+    ParseError
+        ParseError: If the line can't be parsed.
     """
     content = line_text.strip()
 
@@ -260,9 +296,23 @@ def parse_line(line_text):
 def parse_filterlist(lines):
     """Parse filter list from an iterable.
 
-    :param lines: List of strings or file or other iterable.
-    :returns: Iterator over parsed lines.
-    :raises ParseError: Can be thrown during iteration for invalid lines.
+    Parameters
+    ----------
+    lines: iterable of str
+        Lines of the filter list.
+
+    Returns
+    -------
+    iterator of namedtuple
+        Parsed lines of the filter list.
+
+    Raises
+    ------
+    ParseError
+        Thrown during iteration for invalid filter list lines.
+    TypeError
+        If `lines` is not iterable.
+
     """
     for line in lines:
         yield parse_line(line)

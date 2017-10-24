@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Helper classes that handle IO for parsing and rendering."""
+"""Helper classes that handle IO for filter list parsing and rendering."""
 
 import io
 from os import path
@@ -24,7 +24,7 @@ except ImportError:  # The module was renamed in Python 3.
     from urllib.request import urlopen
     from urllib.error import HTTPError
 
-__all__ = ['FSSource', 'TopSource', 'WebSource', 'NotFound']
+__all__ = ['NotFound', 'FSSource', 'TopSource', 'WebSource']
 
 
 class NotFound(Exception):
@@ -38,8 +38,13 @@ class NotFound(Exception):
 class FSSource(object):
     """Directory on the filesystem.
 
-    :param root_path: The path to the directory.
-    :param encoding: Encoding to use for reading the files (default: utf-8).
+    Parameters
+    ----------
+    root_path : str
+        The path to the directory.
+    encoding : str
+        Encoding to use for reading the files (default: utf-8).
+
     """
 
     is_inheritable = True
@@ -49,7 +54,7 @@ class FSSource(object):
         self.root_path = root_path
         self.encoding = encoding
 
-    def resolve_path(self, path_in_source):
+    def _resolve_path(self, path_in_source):
         parts = path_in_source.split('/')
         full_path = path.abspath(path.join(self.root_path, *parts))
         if not full_path.startswith(self.root_path):
@@ -57,7 +62,20 @@ class FSSource(object):
         return full_path
 
     def get(self, path_in_source):
-        full_path = self.resolve_path(path_in_source)
+        """Read file from the source.
+
+        Parameters
+        ----------
+        path_in_source : str
+            Path to the file inside of the source.
+
+        Returns
+        -------
+        iterable of str
+            Lines of the file.
+
+        """
+        full_path = self._resolve_path(path_in_source)
         try:
             with io.open(full_path, encoding=self.encoding) as open_file:
                 for line in open_file:
@@ -73,7 +91,11 @@ class TopSource(FSSource):
 
     Also supports absolute paths. This source is used for the top fragment.
 
-    :param encoding: Encoding to use for reading the files (default: utf-8).
+    Parameters
+    ----------
+    encoding : str
+        Encoding to use for reading the files (default: utf-8).
+
     """
 
     is_inheritable = False
@@ -81,16 +103,20 @@ class TopSource(FSSource):
     def __init__(self, encoding='utf-8'):
         super(TopSource, self).__init__('.', encoding)
 
-    def resolve_path(self, path_in_source):
+    def _resolve_path(self, path_in_source):
         return path_in_source
 
 
 class WebSource(object):
     """Handler for http or https.
 
-    :param protocol: "http" or "https".
-    :param default_encoding: Encoding to use when the server doesn't specify
-        it (default: utf-8).
+    Parameters
+    ----------
+    protocol : str
+        Protocol to use: "http" or "https".
+    default_encoding : str
+        Encoding to use when the server doesn't specify it (default: utf-8).
+
     """
 
     is_inheritable = False
@@ -100,6 +126,19 @@ class WebSource(object):
         self.default_encoding = default_encoding
 
     def get(self, path_in_source):
+        """Read file from the source.
+
+        Parameters
+        ----------
+        path_in_source : str
+            The rest of the URL after "http(s):".
+
+        Returns
+        -------
+        iterable of str
+            Lines of the file.
+
+        """
         url = '{}:{}'.format(self.protocol, path_in_source)
         try:
             response = urlopen(url)

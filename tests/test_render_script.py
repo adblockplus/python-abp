@@ -29,7 +29,7 @@ import threading
 try:
     import SimpleHTTPServer
     import SocketServer
-except:  # The modules were renamed/moved in Python 3.
+except ImportError:  # The modules were renamed/moved in Python 3.
     import http.server as SimpleHTTPServer
     import socketserver as SocketServer
 

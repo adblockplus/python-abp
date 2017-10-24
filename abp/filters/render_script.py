@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Command line script for rendering Adblock Plus filter lists."""
+
 import argparse
 import io
 import logging
@@ -20,6 +22,8 @@ import sys
 
 from .sources import FSSource, TopSource, WebSource, NotFound
 from .renderer import render_filterlist, IncludeError, MissingHeader
+
+__all__ = ['main']
 
 
 def parse_args():

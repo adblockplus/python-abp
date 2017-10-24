@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Combine filter list fragments to produce filter lists."""
+
 from __future__ import unicode_literals
 
 import base64
@@ -24,17 +26,13 @@ import time
 from .parser import parse_filterlist, Comment, Metadata
 from .sources import NotFound
 
-__all__ = ['render_filterlist', 'IncludeError', 'MissingHeader']
+__all__ = ['IncludeError', 'MissingHeader', 'render_filterlist']
 
 _logger = logging.getLogger(__name__)
 
 
 class IncludeError(Exception):
-    """Error in processing include instruction.
-
-    :param error: Description of the error.
-    :param stack: A list of the names of included files.
-    """
+    """Error in processing include instruction."""
 
     def __init__(self, error, stack):
         stack_str = ' from '.join(map("'{}'".format, reversed(stack)))
@@ -50,9 +48,12 @@ class MissingHeader(Exception):
 def _get_and_parse_fragment(name, sources, default_source, include_stack=[]):
     """Retrieve and parse fragment.
 
-    :returns: a tuple `(lines_iterator, inherited_source)` where
-        `inherited_source` is the default source to use for included
-        fragments.
+    Returns
+    -------
+    tuple (iterator of str, Source)
+        First part is the content of the fragment line by line; second part is
+        the default source to be used for included fragments.
+
     """
     if ':' in name:
         source_name, name_in_source = name.split(':', 1)
@@ -166,15 +167,30 @@ def _validate(lines):
 def render_filterlist(name, sources, top_source=None):
     """Produce filter list from fragments.
 
-    :param name: Name of the top level fragment.
-    :param sources: A mapping of source names to sources for getting fragments.
-    :param top_source: Default source used for getting top fragment.
-    :returns: Iterable of of filter list lines (see `line_type` in parser.py).
-    :raises IncludeError: When an include error can't be processed.
-    :raises ParseError: When any of the fragments contain lines that can't
-        be parsed.
-    :raises MissingHeader: If the top level fragment doesn't start with a valid
-        header.
+    Parameters
+    ----------
+    name : str
+        Name of the top level fragment.
+    sources : dict of str -> Source
+        Sources for loading included fragments.
+    top_source : Source
+        The source used to load the top level fragment.
+
+    Returns
+    -------
+    iterable of namedtuple (see `_line_type` in parser.py)
+        Rendered filter list.
+
+    Raises
+    ------
+    IncludeError
+        When an include error can't be processed.
+    ParseError
+        When any of the fragments contain lines that can't be parsed.
+    MissingHeader
+        If the top level fragment doesn't start with a valid header. This would
+        lead to rendering an invalid filter list, so we immediately abort.
+
     """
     _logger.info('Rendering: %s', name)
     lines, default_source = _get_and_parse_fragment(name, sources, top_source)

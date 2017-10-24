@@ -15,7 +15,7 @@
 
 import pytest
 
-from abp.filters import FSSource, NotFound
+from abp.filters.sources import FSSource, NotFound
 
 
 @pytest.fixture

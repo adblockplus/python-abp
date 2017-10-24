@@ -102,7 +102,7 @@ def test_parse_empty():
     },
 }.items())
 def test_parse_filters(filter_text, expected):
-    """Parametric test for filter parsing"""
+    """Parametric test for filter parsing."""
     parsed = parse_line(filter_text)
     assert parsed.type == 'filter'
     assert parsed.text == filter_text

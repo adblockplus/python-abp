@@ -25,7 +25,7 @@ except ImportError:  # The modules were renamed/moved in Python 3.
     from io import BytesIO as StringIO
     from urllib.error import HTTPError
 
-from abp.filters import WebSource, NotFound
+from abp.filters.sources import WebSource, NotFound
 
 
 @pytest.fixture
