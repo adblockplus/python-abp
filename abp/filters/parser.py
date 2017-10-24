@@ -18,7 +18,14 @@ from __future__ import unicode_literals
 import re
 from collections import namedtuple
 
-__all__ = ['parse_filterlist', 'parse_line', 'ParseError']
+__all__ = [
+    'FILTER_ACTION',
+    'FILTER_OPTION',
+    'ParseError',
+    'SELECTOR_TYPE',
+    'parse_filterlist',
+    'parse_line',
+]
 
 
 class ParseError(Exception):
@@ -32,6 +39,60 @@ class ParseError(Exception):
         Exception.__init__(self, '{} in "{}"'.format(error, text))
         self.text = text
         self.error = error
+
+
+# Constants related to filters (see https://adblockplus.org/filters).
+class SELECTOR_TYPE:  # flake8: noqa (This class is an enumeration constant).
+    """Selector types"""
+    URL_PATTERN = 'url-pattern'  # Normal URL patterns.
+    URL_REGEXP = 'url-regexp'    # Regular expressions for URLs.
+    CSS = 'css'                  # CSS selectors for hiding filters.
+    XCSS = 'extended-css'        # Extended CSS selectors (to emulate CSS4).
+    ABP_SIMPLE = 'abp-simple'    # Simplified element hiding syntax.
+
+
+class FILTER_ACTION:  # flake8: noqa (This class is an enumeration constant).
+    """Filter actions"""
+    BLOCK = 'block'              # Block the request.
+    ALLOW = 'allow'              # Allow the request (whitelist).
+    HIDE = 'hide'                # Hide selected element(s).
+    SHOW = 'show'                # Show selected element(s) (whitelist).
+
+
+class FILTER_OPTION:  # flake8: noqa (This class is an enumeration constant).
+    """Filter options"""
+    # Resource types.
+    OTHER = 'other'
+    SCRIPT = 'script'
+    IMAGE = 'image'
+    STYLESHEET = 'stylesheet'
+    OBJECT = 'object'
+    SUBDOCUMENT = 'subdocument'
+    DOCUMENT = 'document'
+    WEBSOCKET = 'websocket'
+    WEBRTC = 'webrtc'
+    PING = 'ping'
+    XMLHTTPREQUEST = 'xmlhttprequest'
+    OBJECT_SUBREQUEST = 'object-subrequest'
+    MEDIA = 'media'
+    FONT = 'font'
+    POPUP = 'popup'
+    GENERICBLOCK = 'genericblock'
+    ELEMHIDE = 'elemhide'
+    GENERICHIDE = 'generichide'
+
+    # Deprecated resource types.
+    BACKGROUND = 'background'
+    XBL = 'xbl'
+    DTD = 'dtd'
+
+    # Other options.
+    MATCH_CASE = 'match-case'
+    DOMAIN = 'domain'
+    THIRD_PARTY = 'third-party'
+    COLLAPSE = 'collapse'
+    SITEKEY = 'sitekey'
+    DONOTTRACK = 'donottrack'
 
 
 def _line_type(name, field_names, format_string):
@@ -56,7 +117,7 @@ Header = _line_type('Header', 'version', '[{.version}]')
 EmptyLine = _line_type('EmptyLine', '', '')
 Comment = _line_type('Comment', 'text', '! {.text}')
 Metadata = _line_type('Metadata', 'key value', '! {0.key}: {0.value}')
-Filter = _line_type('Filter', 'expression', '{.expression}')
+Filter = _line_type('Filter', 'text selector action options', '{.text}')
 Include = _line_type('Include', 'target', '%include {0.target}%')
 
 
@@ -65,6 +126,10 @@ METADATA_KEYS = {'Homepage', 'Title', 'Expires', 'Checksum', 'Redirect',
                  'Version'}
 INCLUDE_REGEXP = re.compile(r'%include\s+(.+)%')
 HEADER_REGEXP = re.compile(r'\[(Adblock(?:\s*Plus\s*[\d\.]+?)?)\]', flags=re.I)
+HIDING_FILTER_REGEXP = re.compile(r'^([^/*|@"!]*?)#([@?])?#(.+)$')
+FILTER_OPTIONS_REGEXP = re.compile(
+    r'\$(~?[\w-]+(?:=[^,\s]+)?(?:,~?[\w-]+(?:=[^,\s]+)?)*)$'
+)
 
 
 def _parse_comment(text):
@@ -88,6 +153,86 @@ def _parse_instruction(text):
     return Include(match.group(1))
 
 
+def _parse_option(option):
+    if '=' in option:
+        return option.split('=', 1)
+    if option.startswith('~'):
+        return option[1:], False
+    return option, True
+
+
+def _parse_filter_option(option):
+    name, value = _parse_option(option)
+
+    # Handle special cases of multivalued options.
+    if name == FILTER_OPTION.DOMAIN:
+        value = [_parse_option(o) for o in value.split('|')]
+    elif name == FILTER_OPTION.SITEKEY:
+        value = value.split('|')
+
+    return name, value
+
+
+def _parse_filter_options(options):
+    return [_parse_filter_option(o) for o in options.split(',')]
+
+
+def _parse_blocking_filter(text):
+    # Based on RegExpFilter.fromText in lib/filterClasses.js
+    # in https://hg.adblockplus.org/adblockpluscore.
+    action = FILTER_ACTION.BLOCK
+    options = []
+    selector = text
+
+    if selector.startswith('@@'):
+        action = FILTER_ACTION.ALLOW
+        selector = selector[2:]
+
+    if '$' in selector:
+        opt_match = FILTER_OPTIONS_REGEXP.search(selector)
+        if opt_match:
+            selector = selector[:opt_match.start(0)]
+            options = _parse_filter_options(opt_match.group(1))
+
+    if (len(selector) > 1 and
+            selector.startswith('/') and selector.endswith('/')):
+        selector = {'type': SELECTOR_TYPE.URL_REGEXP, 'value': selector[1:-1]}
+    else:
+        selector = {'type': SELECTOR_TYPE.URL_PATTERN, 'value': selector}
+
+    return Filter(text, selector, action, options)
+
+
+def _parse_hiding_filter(text, domain, type_flag, selector_value):
+    selector = {'type': SELECTOR_TYPE.CSS, 'value': selector_value}
+    action = FILTER_ACTION.HIDE
+    options = []
+
+    if type_flag == '@':
+        action = FILTER_ACTION.SHOW
+    elif type_flag == '?':
+        selector['type'] = SELECTOR_TYPE.XCSS
+
+    if domain:
+        domains = [_parse_option(d) for d in domain.split(',')]
+        options.append((FILTER_OPTION.DOMAIN, domains))
+
+    return Filter(text, selector, action, options)
+
+
+def parse_filter(text):
+    """Parse one filter.
+
+    :param text: Text representation of a filter.
+    :returns: Filter object.
+    """
+    if '#' in text:
+        match = HIDING_FILTER_REGEXP.search(text)
+        if match:
+            return _parse_hiding_filter(text, *match.groups())
+    return _parse_blocking_filter(text)
+
+
 def parse_line(line_text):
     """Parse one line of a filter list.
 
@@ -106,7 +251,7 @@ def parse_line(line_text):
     elif content.startswith('[') and content.endswith(']'):
         line = _parse_header(content)
     else:
-        line = Filter(content)
+        line = parse_filter(content)
 
     assert line.to_string().replace(' ', '') == content.replace(' ', '')
     return line

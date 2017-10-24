@@ -17,7 +17,10 @@ from __future__ import unicode_literals
 
 import pytest
 
-from abp.filters import parse_line, parse_filterlist, ParseError
+from abp.filters import (
+    parse_line, parse_filterlist, ParseError,
+    SELECTOR_TYPE as ST, FILTER_ACTION as FA, FILTER_OPTION as OPT,
+)
 from abp.filters.parser import Comment, Metadata
 
 
@@ -26,10 +29,85 @@ def test_parse_empty():
     assert line.type == 'emptyline'
 
 
-def test_parse_filter():
-    line = parse_line('||example.com/banner.gif')
-    assert line.type == 'filter'
-    assert line.expression == '||example.com/banner.gif'
+@pytest.mark.parametrize('filter_text, expected', {
+    # Blocking filters with patterns and regexps and blocking exceptions.
+    '*asdf*d**dd*': {
+        'selector': {'type': ST.URL_PATTERN, 'value': '*asdf*d**dd*'},
+        'action': FA.BLOCK,
+    },
+    '@@|*asd|f*d**dd*|': {
+        'selector': {'type': ST.URL_PATTERN, 'value': '|*asd|f*d**dd*|'},
+        'action': FA.ALLOW,
+    },
+    '/ddd|f?a[s]d/': {
+        'selector': {'type': ST.URL_REGEXP, 'value': 'ddd|f?a[s]d'},
+        'action': FA.BLOCK,
+    },
+    '@@/ddd|f?a[s]d/': {
+        'selector': {'type': ST.URL_REGEXP, 'value': 'ddd|f?a[s]d'},
+        'action': FA.ALLOW,
+    },
+    # Blocking filters with some options.
+    'bla$match-case,~script,domain=foo.com|~bar.com,sitekey=foo': {
+        'selector': {'type': ST.URL_PATTERN, 'value': 'bla'},
+        'action': FA.BLOCK,
+        'options': [
+            (OPT.MATCH_CASE, True),
+            (OPT.SCRIPT, False),
+            (OPT.DOMAIN, [('foo.com', True), ('bar.com', False)]),
+            (OPT.SITEKEY, ['foo']),
+        ],
+    },
+    '@@http://bla$~script,~other,sitekey=foo|bar': {
+        'selector': {'type': ST.URL_PATTERN, 'value': 'http://bla'},
+        'action': FA.ALLOW,
+        'options': [
+            (OPT.SCRIPT, False),
+            (OPT.OTHER, False),
+            (OPT.SITEKEY, ['foo', 'bar']),
+        ],
+    },
+    # Element hiding filters and exceptions.
+    '##ddd': {
+        'selector': {'type': ST.CSS, 'value': 'ddd'},
+        'action': FA.HIDE,
+        'options': [],
+    },
+    '#@#body > div:first-child': {
+        'selector': {'type': ST.CSS, 'value': 'body > div:first-child'},
+        'action': FA.SHOW,
+        'options': [],
+    },
+    'foo,~bar##ddd': {
+        'options': [(OPT.DOMAIN, [('foo', True), ('bar', False)])],
+    },
+    # Element hiding emulation filters (extended CSS).
+    'foo,~bar#?#:-abp-properties(abc)': {
+        'selector': {'type': ST.XCSS, 'value': ':-abp-properties(abc)'},
+        'action': FA.HIDE,
+        'options': [(OPT.DOMAIN, [('foo', True), ('bar', False)])],
+    },
+    'foo.com#?#aaa :-abp-properties(abc) bbb': {
+        'selector': {
+            'type': ST.XCSS,
+            'value': 'aaa :-abp-properties(abc) bbb'
+        },
+    },
+    '#?#:-abp-properties(|background-image: url(data:*))': {
+        'selector': {
+            'type': ST.XCSS,
+            'value': ':-abp-properties(|background-image: url(data:*))'
+        },
+        'options': [],
+    },
+}.items())
+def test_parse_filters(filter_text, expected):
+    """Parametric test for filter parsing"""
+    parsed = parse_line(filter_text)
+    assert parsed.type == 'filter'
+    assert parsed.text == filter_text
+    for attribute, expected_value in expected.items():
+        assert getattr(parsed, attribute) == expected_value
 
 
 def test_parse_comment():
