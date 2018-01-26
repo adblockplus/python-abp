@@ -276,6 +276,9 @@ def parse_line(line_text):
     ParseError
         ParseError: If the line can't be parsed.
     """
+    if isinstance(line_text, type(b'')):
+        line_text = line_text.decode('utf-8')
+
     content = line_text.strip()
 
     if content == '':

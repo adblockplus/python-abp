@@ -160,3 +160,8 @@ def test_exception_timing():
     assert next(result) == Comment('good line')
     with pytest.raises(ParseError):
         next(result)
+
+
+def test_parse_line_bytes():
+    line = parse_line(b'! \xc3\xbc')
+    assert line.text == '\xfc'
