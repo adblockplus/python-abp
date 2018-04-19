@@ -52,7 +52,7 @@ setup(
     packages=['abp', 'abp.filters'],
     cmdclass={'devenv': DevEnvCommand},
     entry_points={
-        'console_scripts': ['flrender=abp.filters.render_script:main']
+        'console_scripts': ['flrender=abp.filters.render_script:main'],
     },
     include_package_data=True,
     license='GPLv3',
@@ -68,5 +68,5 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-    ]
+    ],
 )

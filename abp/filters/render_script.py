@@ -45,7 +45,7 @@ def main():
     """Entry point for the rendering script (flrender)."""
     sources = {
         'http': WebSource('http'),
-        'https': WebSource('https')
+        'https': WebSource('https'),
     }
     args = parse_args()
 

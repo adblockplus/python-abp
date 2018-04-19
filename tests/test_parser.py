@@ -90,13 +90,13 @@ def test_parse_empty():
     'foo.com#?#aaa :-abp-properties(abc) bbb': {
         'selector': {
             'type': ST.XCSS,
-            'value': 'aaa :-abp-properties(abc) bbb'
+            'value': 'aaa :-abp-properties(abc) bbb',
         },
     },
     '#?#:-abp-properties(|background-image: url(data:*))': {
         'selector': {
             'type': ST.XCSS,
-            'value': ':-abp-properties(|background-image: url(data:*))'
+            'value': ':-abp-properties(|background-image: url(data:*))',
         },
         'options': [],
     },
