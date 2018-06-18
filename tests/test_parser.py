@@ -67,6 +67,29 @@ def test_parse_empty():
             (OPT.SITEKEY, ['foo', 'bar']),
         ],
     },
+    "||foo.com^$csp=script-src 'self' * 'unsafe-inline',script,sitekey=foo," +
+    'other,match-case,domain=foo.com': {
+        'selector': {'type': ST.URL_PATTERN, 'value': '||foo.com^'},
+        'action': FA.BLOCK,
+        'options': [
+            (OPT.CSP, "script-src 'self' * 'unsafe-inline'"),
+            ('script', True),
+            ('sitekey', ['foo']),
+            ('other', True),
+            ('match-case', True),
+            ('domain', [('foo.com', True)]),
+        ],
+    },
+    '@@bla$script,other,domain=foo.com|~bar.foo.com,csp=c s p': {
+        'selector': {'type': ST.URL_PATTERN, 'value': 'bla'},
+        'action': FA.ALLOW,
+        'options': [
+            ('script', True),
+            ('other', True),
+            ('domain', [('foo.com', True), ('bar.foo.com', False)]),
+            ('csp', 'c s p'),
+        ],
+    },
     # Element hiding filters and exceptions.
     '##ddd': {
         'selector': {'type': ST.CSS, 'value': 'ddd'},
