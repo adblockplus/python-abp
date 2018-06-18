@@ -90,6 +90,14 @@ def test_parse_empty():
             ('csp', 'c s p'),
         ],
     },
+    '||content.server.com/files/*.php$rewrite=$1': {
+        'selector': {'type': ST.URL_PATTERN,
+                     'value': '||content.server.com/files/*.php'},
+        'action': FA.BLOCK,
+        'options': [
+            ('rewrite', '$1'),
+        ],
+    },
     # Element hiding filters and exceptions.
     '##ddd': {
         'selector': {'type': ST.CSS, 'value': 'ddd'},

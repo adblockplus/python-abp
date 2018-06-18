@@ -101,6 +101,7 @@ class FILTER_OPTION:  # flake8: noqa (this is a namespace of constants).
     SITEKEY = 'sitekey'
     DONOTTRACK = 'donottrack'
     CSP = 'csp'
+    REWRITE = 'rewrite'
 
 
 def _line_type(name, field_names, format_string):
