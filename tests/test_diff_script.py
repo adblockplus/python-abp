@@ -126,8 +126,7 @@ def test_no_version(rootdir, base_no_version):
 
 def test_write_and_overwrite(rootdir, archived_files, diff_dir):
     test_diff_with_outfile(rootdir, archived_files, diff_dir)
-    latest = re.sub(r'&act=ads_', '! ', BASE)
-    latest = latest + '&adurl=\n'
+    latest = re.sub(r'&act=ads_', '! ', BASE) + '&adurl=\n'
     rootdir.join('latest.txt').write_text(latest, encoding='utf8')
     run_script(str(rootdir.join('latest.txt')), '-o', str(diff_dir),
                *archived_files)
