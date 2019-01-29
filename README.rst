@@ -211,12 +211,15 @@ instantiate (such as exceptions).
 Using the library with R
 ------------------------
 
-Clone the repo to your local machine. Then create a virtualenv and install
-python-abp there::
+``python-abp`` can be installed directly onto your system, or in a virtual
+environment. To install it directly onto your system::
 
-    $ cd python-abp
-    $ virtualenv env
-    $ pip install --upgrade .
+    $ pip install --upgrade python-abp
+
+To install it in a virtual environment::
+
+    $ virtualenv venv
+    $ venv/bin/pip install --upgrade python-abp
 
 
 Then import it with ``reticulate`` in R:
@@ -224,7 +227,7 @@ Then import it with ``reticulate`` in R:
 .. code-block:: R
 
     > library(reticulate)
-    > use_virtualenv("~/python-abp/env", required=TRUE)
+    > use_virtualenv("~/python-abp/env", required=TRUE)  # If using virtualenv
     > abp <- import("abp.filters.rpy")
 
 Now you can use the functions with ``abp$functionname``, e.g.
