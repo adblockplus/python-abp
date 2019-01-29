@@ -5,6 +5,7 @@
 ^dist/
 ^devenv/
 ^.pytest_cache$
+.coverage
 
 syntax: glob
 *.pyc
