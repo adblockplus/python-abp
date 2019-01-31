@@ -66,8 +66,8 @@ def strings2utf8(data):
         return [strings2utf8(v) for v in data]
     if isinstance(data, tuple):
         return tuple(strings2utf8(v) for v in data)
-    if isinstance(data, type('')):  # Python 2/3 compatible way of
-                                    # saying "unicode string".
+    if isinstance(data, type('')):
+        # The condition is a Python 2/3 way of saying "unicode string".
         return data.encode('utf-8')
     return data
 
