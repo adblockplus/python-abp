@@ -71,6 +71,17 @@ _TEST_EXAMPLES = {
             b'options': [(b'domain', [(b'foo.com', True)])],
         },
     },
+    'filter_with_%': {
+        'in': b'%22banner%*%22idzone%',
+        'out': {
+            b'type': b'Filter',
+            b'text': b'%22banner%*%22idzone%',
+            b'selector': {b'type': b'url-pattern',
+                          b'value': b'%22banner%*%22idzone%'},
+            b'action': b'block',
+            b'options': [],
+        },
+    },
     'filter_multiple': {
         'in': b'foo.com,bar.com##div#ad1',
         'out': {

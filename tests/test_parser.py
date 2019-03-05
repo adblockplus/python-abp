@@ -155,7 +155,7 @@ def test_parse_instruction():
 
 def test_parse_bad_instruction():
     with pytest.raises(ParseError):
-        parse_line('%foo bar%')
+        parse_line('%include%')
 
 
 def test_parse_start():
@@ -216,7 +216,7 @@ def test_parse_filterlist():
 
 
 def test_exception_timing():
-    result = parse_filterlist(['! good line', '%bad line%'])
+    result = parse_filterlist(['! good line', '%includes bad%'])
     assert next(result) == Comment('good line')
     with pytest.raises(ParseError):
         next(result)
