@@ -68,7 +68,7 @@ _TEST_EXAMPLES = {
             b'text': b'foo.com##div#ad1',
             b'selector': {b'type': b'css', b'value': b'div#ad1'},
             b'action': b'hide',
-            b'options': [(b'domain', [(b'foo.com', True)])],
+            b'options': {b'domain': {b'foo.com': True}},
         },
     },
     'filter_with_%': {
@@ -79,7 +79,7 @@ _TEST_EXAMPLES = {
             b'selector': {b'type': b'url-pattern',
                           b'value': b'%22banner%*%22idzone%'},
             b'action': b'block',
-            b'options': [],
+            b'options': {},
         },
     },
     'filter_multiple': {
@@ -89,8 +89,22 @@ _TEST_EXAMPLES = {
             b'text': b'foo.com,bar.com##div#ad1',
             b'selector': {b'type': b'css', b'value': b'div#ad1'},
             b'action': b'hide',
-            b'options': [(b'domain', [(b'foo.com', True), (b'bar.com',
-                                                           True)])],
+            b'options': {b'domain': {b'foo.com': True, b'bar.com': True}},
+        },
+    },
+    'filter_with_sitekey_list': {
+        'in': b'@@bla$ping,domain=foo.com|~bar.foo.com,sitekey=foo|bar',
+        'out': {
+            b'text':
+                b'@@bla$ping,domain=foo.com|~bar.foo.com,sitekey=foo|bar',
+                b'selector': {b'value': b'bla', b'type': b'url-pattern'},
+                b'action': b'allow',
+                b'options': {
+                    b'ping': True,
+                    b'domain': {b'foo.com': True,
+                                b'bar.foo.com': False},
+                    b'sitekey': [b'foo', b'bar']},
+                b'type': b'Filter',
         },
     },
 }
