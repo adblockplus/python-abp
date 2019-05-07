@@ -304,6 +304,9 @@ def parse_line(line, position='body'):
             key, value = match.groups()
             if position != 'body' or key.lower() == 'checksum':
                 return Metadata(key, value)
+        if stripped[1:].startswith(':'):
+            meta = stripped[2:].split("=")
+            return Metadata(meta[0],meta[1])
         return Comment(stripped[1:].lstrip())
 
     if stripped.startswith('%include') and stripped.endswith('%'):
