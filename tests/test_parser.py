@@ -146,6 +146,11 @@ def test_parse_comment():
     assert line.type == 'comment'
     assert line.text == 'Block foo'
 
+def test_parse_comment_meta():
+    line = parse_line('!:test_key=Some value')
+    assert line.type == 'metadata'
+    assert line.key == 'test_key'
+    assert line.value == 'Some value'
 
 def test_parse_instruction():
     line = parse_line('%include foo:bar/baz.txt%')
