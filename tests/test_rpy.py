@@ -20,7 +20,7 @@ from collections import namedtuple
 import pytest
 import sys
 
-from abp.filters.rpy import tuple2dict, line2dict, lines2dicts
+from abp.filters.rpy import line2dict, lines2dicts
 
 
 _SAMPLE_TUPLE = namedtuple('tuple', 'foo,bar')
@@ -133,21 +133,6 @@ def check_data_utf8(data):
             check_data_utf8(item)
     elif isinstance(data, type('')):
         raise AssertionError('{} is str. Expected bytes.'.format(data))
-
-
-@pytest.mark.parametrize('foo,bar', [
-    ('test_foo', 1),
-    ({'foofoo': 'test', 'foobar': 2}, [1, 2, 3]),
-    ((1,), [('a', True), ('b', False)]),
-])
-def test_tuple2dict(foo, bar):
-    """Test that dicts are produced correctly from a named tuple."""
-    data = _SAMPLE_TUPLE(foo=foo, bar=bar)
-    exp = {'foo': foo, 'bar': bar, 'type': 'tuple'}
-
-    result = tuple2dict(data)
-
-    assert exp == result
 
 
 @pytest.mark.skipif(sys.version.startswith('3.'), reason='Redundant on py3+.')

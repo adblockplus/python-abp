@@ -1,0 +1,13 @@
+[Adblock Plus 2.0]
+! Title: Test filter list.
+!
+! *** some:include/comment.txt ***
+! Some other comment
+!:foo=bar
+! Example block 1
+!:baz=some_tricky?variable=with&funny=chars#and-stuff
+! Another comment
+||block.ing/filter$domain=foo.com|~bar.com
+white.list.ing#@#hiding.filter
+! Another block
+@@whateve.rs

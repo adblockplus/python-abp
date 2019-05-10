@@ -1,0 +1,56 @@
+[
+  {
+    "variables": {
+      "foo": "bar",
+      "baz": "some_tricky?variable=with&funny=chars#and-stuff"
+    },
+    "description": "Example block 1\nAnother comment",
+    "filters": [
+      {
+        "text": "||block.ing/filter$domain=foo.com|~bar.com",
+        "selector": {
+          "type": "url-pattern",
+          "value": "||block.ing/filter"
+        },
+        "action": "block",
+        "options": {
+          "domain": {
+            "foo.com": true,
+            "bar.com": false
+          }
+        },
+        "type": "Filter"
+      },
+      {
+        "text": "white.list.ing#@#hiding.filter",
+        "selector": {
+          "type": "css",
+          "value": "hiding.filter"
+        },
+        "action": "show",
+        "options": {
+          "domain": {
+            "white.list.ing": true
+          }
+        },
+        "type": "Filter"
+      }
+    ]
+  },
+  {
+    "description": "Another block",
+    "variables": {},
+    "filters": [
+      {
+        "text": "@@whateve.rs",
+        "selector": {
+          "type": "url-pattern",
+          "value": "whateve.rs"
+        },
+        "action": "allow",
+        "options": {},
+        "type": "Filter"
+      }
+    ]
+  }
+]
