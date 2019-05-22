@@ -60,9 +60,9 @@ def test_simple_render(head):
 
 
 def test_include(head):
-    src = MockSource(fl='[Adblock]\n%include src:inc%', inc='Included')
+    src = MockSource(fl='[Adblock]\n%include src:inc%', inc='!:foo=bar')
     got = render_str('src:fl', {'src': src})
-    assert got.startswith(head + '! *** src:inc ***\nIncluded')
+    assert got.startswith(head + '! *** src:inc ***\n! :foo=bar')
 
 
 def test_include2(head):
