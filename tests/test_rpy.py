@@ -14,11 +14,9 @@
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
 """Functional tests for testing rPython integration."""
-from __future__ import unicode_literals
 
 from collections import namedtuple
 import pytest
-import sys
 
 from abp.filters.rpy import line2dict, lines2dicts
 
@@ -27,124 +25,87 @@ _SAMPLE_TUPLE = namedtuple('tuple', 'foo,bar')
 
 _TEST_EXAMPLES = {
     'header': {
-        'in': b'[Adblock Plus 2.0]',
+        'in': '[Adblock Plus 2.0]',
         'out': {
-            b'type': b'Header',
-            b'version': b'Adblock Plus 2.0',
+            'type': 'Header',
+            'version': 'Adblock Plus 2.0',
         },
     },
     'metadata': {
-        'in': b'! Title: Example list',
+        'in': '! Title: Example list',
         'out': {
-            b'type': b'Metadata',
-            b'key': b'Title',
-            b'value': b'Example list',
+            'type': 'Metadata',
+            'key': 'Title',
+            'value': 'Example list',
         },
     },
     'comment': {
-        'in': b'! Comment',
+        'in': '! Comment',
         'out': {
-            b'type': b'Comment',
-            b'text': b'Comment',
+            'type': 'Comment',
+            'text': 'Comment',
         },
     },
     'empty': {
-        'in': b'',
+        'in': '',
         'out': {
-            b'type': b'EmptyLine',
+            'type': 'EmptyLine',
         },
     },
     'include': {
-        'in': b'%include www.test.py/filtelist.txt%',
+        'in': '%include www.test.py/filtelist.txt%',
         'out': {
-            b'type': b'Include',
-            b'target': b'www.test.py/filtelist.txt',
+            'type': 'Include',
+            'target': 'www.test.py/filtelist.txt',
         },
     },
     'filter_single': {
-        'in': b'foo.com##div#ad1',
+        'in': 'foo.com##div#ad1',
         'out': {
-            b'type': b'Filter',
-            b'text': b'foo.com##div#ad1',
-            b'selector': {b'type': b'css', b'value': b'div#ad1'},
-            b'action': b'hide',
-            b'options': {b'domain': {b'foo.com': True}},
+            'type': 'Filter',
+            'text': 'foo.com##div#ad1',
+            'selector': {'type': 'css', 'value': 'div#ad1'},
+            'action': 'hide',
+            'options': {'domain': {'foo.com': True}},
         },
     },
     'filter_with_%': {
-        'in': b'%22banner%*%22idzone%',
+        'in': '%22banner%*%22idzone%',
         'out': {
-            b'type': b'Filter',
-            b'text': b'%22banner%*%22idzone%',
-            b'selector': {b'type': b'url-pattern',
-                          b'value': b'%22banner%*%22idzone%'},
-            b'action': b'block',
-            b'options': {},
+            'type': 'Filter',
+            'text': '%22banner%*%22idzone%',
+            'selector': {'type': 'url-pattern',
+                         'value': '%22banner%*%22idzone%'},
+            'action': 'block',
+            'options': {},
         },
     },
     'filter_multiple': {
-        'in': b'foo.com,bar.com##div#ad1',
+        'in': 'foo.com,bar.com##div#ad1',
         'out': {
-            b'type': b'Filter',
-            b'text': b'foo.com,bar.com##div#ad1',
-            b'selector': {b'type': b'css', b'value': b'div#ad1'},
-            b'action': b'hide',
-            b'options': {b'domain': {b'foo.com': True, b'bar.com': True}},
+            'type': 'Filter',
+            'text': 'foo.com,bar.com##div#ad1',
+            'selector': {'type': 'css', 'value': 'div#ad1'},
+            'action': 'hide',
+            'options': {'domain': {'foo.com': True, 'bar.com': True}},
         },
     },
     'filter_with_sitekey_list': {
-        'in': b'@@bla$ping,domain=foo.com|~bar.foo.com,sitekey=foo|bar',
+        'in': '@@bla$ping,domain=foo.com|~bar.foo.com,sitekey=foo|bar',
         'out': {
-            b'text':
-                b'@@bla$ping,domain=foo.com|~bar.foo.com,sitekey=foo|bar',
-                b'selector': {b'value': b'bla', b'type': b'url-pattern'},
-                b'action': b'allow',
-                b'options': {
-                    b'ping': True,
-                    b'domain': {b'foo.com': True,
-                                b'bar.foo.com': False},
-                    b'sitekey': [b'foo', b'bar']},
-                b'type': b'Filter',
+            'text':
+                '@@bla$ping,domain=foo.com|~bar.foo.com,sitekey=foo|bar',
+                'selector': {'value': 'bla', 'type': 'url-pattern'},
+                'action': 'allow',
+                'options': {
+                    'ping': True,
+                    'domain': {'foo.com': True,
+                               'bar.foo.com': False},
+                    'sitekey': ['foo', 'bar']},
+                'type': 'Filter',
         },
     },
 }
-
-
-def check_data_utf8(data):
-    """Check if all the strings in a dict are encoded as unicode.
-
-    Parameters
-    ----------
-    data: dict
-        The dictionary to be checked
-
-    Raises
-    -------
-    AssertionError
-        If any of the strings encountered are not unicode
-
-    """
-    if isinstance(data, dict):
-        for key, value in data.items():
-            check_data_utf8(key)
-            check_data_utf8(value)
-    elif isinstance(data, (list, tuple)):
-        for item in data:
-            check_data_utf8(item)
-    elif isinstance(data, type('')):
-        raise AssertionError('{} is str. Expected bytes.'.format(data))
-
-
-@pytest.mark.skipif(sys.version.startswith('3.'), reason='Redundant on py3+.')
-@pytest.mark.parametrize('line_type', _TEST_EXAMPLES.keys())
-def test_line2dict_encoding(line_type):
-    """Test that the resulting object has all strings encoded as utf-8.
-
-    These tests will only be run on Python2.*. On Python3.*, these test
-    cases are covered by test_line2dict() below.
-    """
-    data = line2dict(_TEST_EXAMPLES[line_type]['in'])
-    check_data_utf8(data)
 
 
 @pytest.mark.parametrize('line_type', list(_TEST_EXAMPLES.keys()))
@@ -177,7 +138,7 @@ def test_lines2dicts_default():
     By default, lines2dicts() does not correctly parse headers and metadata.
     """
     tests = [t for t in _TEST_EXAMPLES.values()
-             if t['out'][b'type'] not in {b'Header', b'Metadata'}]
+             if t['out']['type'] not in {'Header', 'Metadata'}]
     ins = [ex['in'] for ex in tests]
     outs = [ex['out'] for ex in tests]
 
