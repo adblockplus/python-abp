@@ -11,3 +11,6 @@
 white.list.ing#@#hiding.filter
 ! Another block
 @@whateve.rs
+! Snippet filters with non-ascii charcters
+news.de#$#abort-current-inline-script Math.floor /[ం]\\W*Ｔ/
+foo.com,www.foo.com#$#hide-if-contains 广告

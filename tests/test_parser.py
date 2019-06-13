@@ -131,6 +131,15 @@ def test_parse_empty():
         },
         'options': [],
     },
+    # Snippet filters
+    'foo,~bar#$#abort-on-property-write aaa; abort-on-property-read bbb': {
+        'selector': {
+            'type': SelType.SNIPPET,
+            'value': 'abort-on-property-write aaa; abort-on-property-read bbb',
+        },
+        'action': FilterAction.HIDE,
+        'options': [(FilterOption.DOMAIN, [('foo', True), ('bar', False)])],
+    },
 }.items())
 def test_parse_filters(filter_text, expected):
     """Parametric test for filter parsing."""

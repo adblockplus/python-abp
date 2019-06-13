@@ -42,7 +42,7 @@ def expected_blocks():
 
 def test_to_blocks(fl_lines):
     blocks = list(to_blocks(fl_lines))
-    assert len(blocks) == 2
+    assert len(blocks) == 3
     block = blocks[0]
     assert block.variables['foo'] == 'bar'
     assert block.variables['baz'] == ('some_tricky?variable=with&funny=chars#'
@@ -56,5 +56,4 @@ def test_to_blocks(fl_lines):
 
 def test_to_dict(fl_lines, expected_blocks):
     blocks = [b.to_dict() for b in to_blocks(fl_lines)]
-    print(json.dumps(blocks, indent=2))
     assert blocks == expected_blocks
