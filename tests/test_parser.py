@@ -112,6 +112,21 @@ def test_parse_empty():
     'foo,~bar##ddd': {
         'options': [(FilterOption.DOMAIN, [('foo', True), ('bar', False)])],
     },
+    'foo.*##ddd': {
+        'selector': {'type': SelType.CSS, 'value': 'ddd'},
+        'action': FilterAction.HIDE,
+        'options': [(FilterOption.DOMAIN, [('foo.*', True)])],
+    },
+    '1.2.3.4,example.*##.some-css-class': {
+        'selector': {'type': SelType.CSS, 'value': '.some-css-class'},
+        'action': FilterAction.HIDE,
+        'options': [(FilterOption.DOMAIN, [('1.2.3.4', True), ('example.*', True)])],
+    },
+    'foo.*,~bar#@#body > div:first-child': {
+        'selector': {'type': SelType.CSS, 'value': 'body > div:first-child'},
+        'action': FilterAction.SHOW,
+        'options': [(FilterOption.DOMAIN, [('foo.*', True), ('bar', False)])],
+    },
     # Element hiding emulation filters (extended CSS).
     'foo,~bar#?#:-abp-properties(abc)': {
         'selector': {'type': SelType.XCSS, 'value': ':-abp-properties(abc)'},
