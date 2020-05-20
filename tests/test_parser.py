@@ -120,7 +120,8 @@ def test_parse_empty():
     '1.2.3.4,example.*##.some-css-class': {
         'selector': {'type': SelType.CSS, 'value': '.some-css-class'},
         'action': FilterAction.HIDE,
-        'options': [(FilterOption.DOMAIN, [('1.2.3.4', True), ('example.*', True)])],
+        'options': [(FilterOption.DOMAIN, [('1.2.3.4', True),
+                                           ('example.*', True)])],
     },
     'foo.*,~bar#@#body > div:first-child': {
         'selector': {'type': SelType.CSS, 'value': 'body > div:first-child'},
