@@ -213,6 +213,10 @@ def _parse_option(option):
     return option, True
 
 
+def _unparse_option(option):
+    pass
+
+
 def _parse_filter_option(option):
     name, value = _parse_option(option)
 

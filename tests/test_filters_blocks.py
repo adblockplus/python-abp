@@ -47,13 +47,15 @@ def test_to_blocks(fl_lines):
     assert block.variables['foo'] == 'bar'
     assert block.variables['baz'] == ('some_tricky?variable=with&funny=chars#'
                                       'and-stuff')
-    assert block.description == 'Example block 1\nAnother comment'
+    print(block.description)
+    assert block.description == 'Example block 1\nAnother comment\nAnother block\nSnippet filters with non-ascii characters'
     # Don't test the filters thouroughly: filter parsing is tested elsewhere.
-    assert len(block.filters) == 2
+    assert len(block.filters) == 5
     assert block.filters[0].selector['type'] == SelectorType.URL_PATTERN
     assert block.filters[1].action == FilterAction.SHOW
 
 
 def test_to_dict(fl_lines, expected_blocks):
     blocks = [b.to_dict() for b in to_blocks(fl_lines)]
+    print(json.dumps(blocks, indent=2))
     assert blocks == expected_blocks
