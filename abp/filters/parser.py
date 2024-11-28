@@ -214,7 +214,11 @@ def _parse_option(option):
 
 
 def _unparse_option(option):
-    pass
+    name, value = option
+    if value is True:
+        return name
+    else:
+        return f"~{name}"
 
 
 def _parse_filter_option(option):
@@ -227,6 +231,18 @@ def _parse_filter_option(option):
         value = value.split('|')
 
     return name, value
+
+
+def __unparse_filter_option(option):
+    name, value = option
+    # handle special case for multivalued options.
+    if isinstance(value, list):
+        opt_v = []
+        for item in value:
+            opt_v.append(_unparse_option(item))
+        return (name, opt_v) # leave domains in list format for later
+    else:
+        return _unparse_option(option)
 
 
 def _parse_filter_options(options):
@@ -297,6 +313,55 @@ def parse_filter(text):
         if match:
             return _parse_hiding_filter(text, *match.groups())
     return _parse_blocking_filter(text)
+
+
+def unparse_filter(filter: Filter):
+    # Figure out the filter type
+    if filter.selector["type"] == SelectorType.XCSS:
+        type_flag = "#?#"
+        filter_type = "hide"
+    elif filter.selector["type"] == SelectorType.SNIPPET:
+        type_flag = "#$#"
+        filter_type = "hide"
+    elif filter.action == FilterAction.HIDE:
+        type_flag = "##"
+        filter_type = "hide"
+    elif filter.action == FilterAction.SHOW:
+        type_flag = "#@#"
+        filter_type = "hide"
+    elif filter.action == FilterAction.ALLOW:
+        type_flag = "@@"
+        filter_type = "url"
+    elif filter.action == FilterAction.BLOCK:
+        type_flag = ""
+        filter_type = "url"
+    # figure out the Selector
+    filter_base = f"{type_flag}{filter.selector["value"]}"
+    # figure out the options
+    options = []
+    for option in filter.options:  # list[tuple]
+        options.append(__unparse_filter_option(option))
+    # return early if no options
+    if not options:
+        return f"{filter_base}"
+    options_str = ""
+    for option in options:
+        options_str += "," if options_str else ""  # add comma if not empty
+        if isinstance(option, tuple):
+            # this is the domains list
+            key, value = option
+            if filter_type == "url":
+                options_str += f"{key}={"|".join(value)}"
+            elif filter_type == "hide":
+                options_str += ",".join(value)
+        else:
+            options_str += option
+    # I know, too many ifs, but re bulding the filter has a lot of conditions.
+    # No build the final filter
+    if filter_type == "url":
+        return f"{filter_base}${options_str}"
+    elif filter_type == "hide":
+        return f"{options_str}{filter_base}"
 
 
 def parse_line(line, position='body'):

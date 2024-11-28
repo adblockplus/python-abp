@@ -7,7 +7,7 @@
 ! Example block 1
 !:baz=some_tricky?variable=with&funny=chars#and-stuff
 ! Another comment
-||block.ing/filter$domain=foo.com|~bar.com
+||block.ing/filter$popup,~image,domain=foo.com|~bar.com
 white.list.ing#@#hiding.filter
 ! Another block
 @@whateve.rs
@@ -24,3 +24,5 @@ white.list.ing##hiding.filter
 @@watevs.lol
 ! more more more within block
 @@Ohno.js
+! test XSS filters
+ajaxshowtime.com#?#div:-abp-properties(content: "Advertentie";)

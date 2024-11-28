@@ -2,13 +2,15 @@
   {
     "filters": [
       {
-        "text": "||block.ing/filter$domain=foo.com|~bar.com",
+        "text": "||block.ing/filter$popup,~image,domain=foo.com|~bar.com",
         "selector": {
           "type": "url-pattern",
           "value": "||block.ing/filter"
         },
         "action": "block",
         "options": {
+          "popup": true,
+          "image": false,
           "domain": {
             "foo.com": true,
             "bar.com": false
@@ -135,11 +137,25 @@
         "action": "allow",
         "options": {},
         "type": "Filter"
+      },
+      {
+        "text": "ajaxshowtime.com#?#div:-abp-properties(content: \"Advertentie\";)",
+        "selector": {
+          "type": "extended-css",
+          "value": "div:-abp-properties(content: \"Advertentie\";)"
+        },
+        "action": "hide",
+        "options": {
+          "domain": {
+            "ajaxshowtime.com": true
+          }
+        },
+        "type": "Filter"
       }
     ],
     "variables": {
       "foo": "bar3"
     },
-    "description": "more more more within block"
+    "description": "more more more within block\ntest XSS filters"
   }
 ]
