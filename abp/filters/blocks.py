@@ -113,7 +113,8 @@ def to_blocks(parsed_lines):
 
     for line in parsed_lines:
         if line.type == 'comment':
-            if filters:
+            if filters and VAR_REGEXP.search(line.text):
+                # if comment is variable, and we have filters, complete block.
                 yield FiltersBlock(comments, filters)
                 comments = []
                 filters = []
