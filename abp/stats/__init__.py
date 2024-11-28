@@ -18,4 +18,4 @@
 from .filterhits import load_filterhit_statistics
 
 
-__all__ = ['load_filterhit_statistics']
+__all__ = ["load_filterhit_statistics"]

@@ -21,10 +21,10 @@ see: https://cran.r-project.org/web/packages/rPython/index.html
 
 from abp.filters import parse_line
 
-__all__ = ['line2dict']
+__all__ = ["line2dict"]
 
 
-def line2dict(text, mode='body'):
+def line2dict(text, mode="body"):
     """Convert a filterlist line to a dictionary.
 
     All strings in the output dictionary will be UTF8 byte strings. This is
@@ -47,7 +47,7 @@ def line2dict(text, mode='body'):
     return parse_line(text, mode).to_dict()
 
 
-def lines2dicts(string_list, mode='body'):
+def lines2dicts(string_list, mode="body"):
     """Convert a list of filterlist strings to a dictionary.
 
     All strings in the output dictionary will be UTF8 byte strings. This is

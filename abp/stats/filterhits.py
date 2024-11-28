@@ -35,13 +35,13 @@ def load_filterhit_statistics(path, sources=None):
         With the csv entries.
 
     """
-    integer_cols = ['onehour_sessions', 'hits', 'domains', 'rootdomains']
+    integer_cols = ["onehour_sessions", "hits", "domains", "rootdomains"]
 
     with open(path) as csvstream:
         reader = csv.DictReader(csvstream)
 
         for entry in reader:
-            if sources and entry['source'] not in sources:
+            if sources and entry["source"] not in sources:
                 continue
             for col in integer_cols:
                 try:

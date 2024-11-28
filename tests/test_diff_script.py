@@ -29,111 +29,114 @@ from test_differ import BASE, LATEST
 @pytest.fixture
 def rootdir(tmpdir):
     """Root directory for test files."""
-    rootdir = tmpdir.join('root')
+    rootdir = tmpdir.join("root")
     rootdir.mkdir()
-    rootdir.join('latest.txt').write_text(LATEST, encoding='utf8')
+    rootdir.join("latest.txt").write_text(LATEST, encoding="utf8")
     return rootdir
 
 
 @pytest.fixture
 def archive_dir(rootdir):
-    return rootdir.mkdir('archive')
+    return rootdir.mkdir("archive")
 
 
 @pytest.fixture
 def diff_dir(rootdir):
-    return rootdir.mkdir('diff')
+    return rootdir.mkdir("diff")
 
 
 @pytest.fixture
 def archived_files(archive_dir):
-    base2 = BASE + '&adnet=\n'
-    base2 = re.sub(r'! Version: \d+', '! Version: 112', base2)
-    archive_dir.join('list111.txt').write_text(BASE, encoding='utf8')
-    archive_dir.join('list112.txt').write_text(base2, encoding='utf8')
+    base2 = BASE + "&adnet=\n"
+    base2 = re.sub(r"! Version: \d+", "! Version: 112", base2)
+    archive_dir.join("list111.txt").write_text(BASE, encoding="utf8")
+    archive_dir.join("list112.txt").write_text(base2, encoding="utf8")
     return [str(x) for x in archive_dir.listdir()]
 
 
 @pytest.fixture
 def base_no_version(archive_dir):
-    base = re.sub(r'! Version: \d+', '! ', BASE)
-    archive_dir.join('list113.txt').write_text(base, encoding='utf8')
+    base = re.sub(r"! Version: \d+", "! ", BASE)
+    archive_dir.join("list113.txt").write_text(base, encoding="utf8")
     return [str(x) for x in archive_dir.listdir()]
 
 
 def run_script(*args, **kw):
     """Run diff rendering script with given arguments and return its output."""
-    cmd = ['fldiff'] + list(args)
+    cmd = ["fldiff"] + list(args)
 
-    proc = subprocess.Popen(cmd, stderr=subprocess.PIPE,
-                            stdout=subprocess.PIPE, stdin=subprocess.PIPE,
-                            **kw)
+    proc = subprocess.Popen(
+        cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, stdin=subprocess.PIPE, **kw
+    )
     stdout, stderr = proc.communicate()
-    return proc.returncode, stderr.decode('utf-8'), stdout.decode('utf-8')
+    return proc.returncode, stderr.decode("utf-8"), stdout.decode("utf-8")
 
 
 def test_diff_with_outfile(rootdir, archived_files, diff_dir):
-    run_script(str(rootdir.join('latest.txt')), '-o', str(diff_dir),
-               *archived_files)
+    run_script(str(rootdir.join("latest.txt")), "-o", str(diff_dir), *archived_files)
     assert len(diff_dir.listdir()) == 2
     for file in diff_dir.visit():
-        with io.open(str(file), encoding='utf-8') as dst:
+        with io.open(str(file), encoding="utf-8") as dst:
             result = dst.read()
-        assert '- &ad.vid=$~xmlhttprequest' in result
-        assert '+ &ad_channel=\xa3' in result
-        assert '! Version: 123' in result
+        assert "- &ad.vid=$~xmlhttprequest" in result
+        assert "+ &ad_channel=\xa3" in result
+        assert "! Version: 123" in result
 
 
 def test_diff_no_outfile(rootdir, archived_files):
     os.chdir(str(rootdir))
-    run_script(str(rootdir.join('latest.txt')), *archived_files)
-    for file in ['diff111.txt', 'diff112.txt']:
-        with io.open(file, encoding='utf-8') as dst:
+    run_script(str(rootdir.join("latest.txt")), *archived_files)
+    for file in ["diff111.txt", "diff112.txt"]:
+        with io.open(file, encoding="utf-8") as dst:
             result = dst.read()
-        assert '- &ad.vid=$~xmlhttprequest' in result
-        assert '+ &ad_channel=\xa3' in result
-        assert '! Version: 123' in result
+        assert "- &ad.vid=$~xmlhttprequest" in result
+        assert "+ &ad_channel=\xa3" in result
+        assert "! Version: 123" in result
 
 
 def test_no_base_file(rootdir):
-    code, err, _ = run_script(str(rootdir.join('latest.txt')))
+    code, err, _ = run_script(str(rootdir.join("latest.txt")))
     assert code == 2
-    assert 'usage: fldiff' in err
+    assert "usage: fldiff" in err
 
 
 def test_wrong_file(rootdir):
-    code, err, _ = run_script(str(rootdir.join('base.txt')), 'wrong.txt')
+    code, err, _ = run_script(str(rootdir.join("base.txt")), "wrong.txt")
     assert code == 1
-    assert 'No such file or directory' in err
+    assert "No such file or directory" in err
 
 
 def test_diff_to_self(rootdir, diff_dir):
-    run_script(str(rootdir.join('latest.txt')), '-o', str(diff_dir),
-               str(rootdir.join('latest.txt')))
+    run_script(
+        str(rootdir.join("latest.txt")),
+        "-o",
+        str(diff_dir),
+        str(rootdir.join("latest.txt")),
+    )
     assert len(diff_dir.listdir()) == 1
     for file in diff_dir.visit():
-        with io.open(str(file), encoding='utf-8') as dst:
+        with io.open(str(file), encoding="utf-8") as dst:
             result = dst.read()
-        assert result == '[Adblock Plus Diff]\n'
+        assert result == "[Adblock Plus Diff]\n"
 
 
 def test_no_version(rootdir, base_no_version):
-    code, err, _ = run_script(str(rootdir.join('latest.txt')), '-o',
-                              str(diff_dir), *base_no_version)
+    code, err, _ = run_script(
+        str(rootdir.join("latest.txt")), "-o", str(diff_dir), *base_no_version
+    )
     assert code == 1
-    assert 'Unable to find Version in ' in err
+    assert "Unable to find Version in " in err
 
 
 def test_write_and_overwrite(rootdir, archived_files, diff_dir):
     test_diff_with_outfile(rootdir, archived_files, diff_dir)
-    latest = re.sub(r'&act=ads_', '! ', BASE) + '&adurl=\n'
-    rootdir.join('latest.txt').write_text(latest, encoding='utf8')
-    run_script(str(rootdir.join('latest.txt')), '-o', str(diff_dir),
-               *archived_files)
+    latest = re.sub(r"&act=ads_", "! ", BASE) + "&adurl=\n"
+    rootdir.join("latest.txt").write_text(latest, encoding="utf8")
+    run_script(str(rootdir.join("latest.txt")), "-o", str(diff_dir), *archived_files)
     assert len(diff_dir.listdir()) == 2
     for file in diff_dir.visit():
-        with io.open(str(file), encoding='utf-8') as dst:
+        with io.open(str(file), encoding="utf-8") as dst:
             result = dst.read()
-        assert '- &act=ads_' in result
-        assert '+ &adurl=' in result
-        assert '- &ad.vid=$~xmlhttprequest' not in result
+        assert "- &act=ads_" in result
+        assert "+ &adurl=" in result
+        assert "- &ad.vid=$~xmlhttprequest" not in result

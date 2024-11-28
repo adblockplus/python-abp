@@ -17,7 +17,6 @@
 
 from __future__ import unicode_literals
 
-import json
 import os
 
 import pytest
@@ -35,6 +34,6 @@ def fl_lines():
 
 def test_unparse_filter(fl_lines):
     for line in fl_lines:
-        if line.type == 'filter':
+        if line.type == "filter":
             unparsed = unparse_filter(line)
             assert unparsed == line.text
