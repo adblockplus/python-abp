@@ -110,19 +110,19 @@ from .sources import (
 
 __all__ = [
     # Constants
-    'FilterAction',
-    'FilterOption',
-    'SelectorType',
+    "FilterAction",
+    "FilterOption",
+    "SelectorType",
     # Exceptions
-    'ParseError',
-    'IncludeError',
-    'MissingHeader',
+    "ParseError",
+    "IncludeError",
+    "MissingHeader",
     # File sources
-    'FSSource',
-    'TopSource',
-    'WebSource',
+    "FSSource",
+    "TopSource",
+    "WebSource",
     # Functions
-    'parse_filterlist',
-    'parse_line',
-    'render_filterlist',
+    "parse_filterlist",
+    "parse_line",
+    "render_filterlist",
 ]

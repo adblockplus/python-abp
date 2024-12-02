@@ -57,9 +57,9 @@ from __future__ import unicode_literals
 
 import re
 
-__all__ = ['to_blocks']
+__all__ = ["to_blocks"]
 
-VAR_REGEXP = re.compile(r'^:(\w+)=(.*)$')
+VAR_REGEXP = re.compile(r"^:(\w+)=(.*)$")
 
 
 class FiltersBlock(object):
@@ -83,11 +83,11 @@ class FiltersBlock(object):
             else:
                 descr_lines.append(comment.text)
 
-        self.description = '\n'.join(descr_lines)
+        self.description = "\n".join(descr_lines)
 
     def to_dict(self):
         ret = dict(self.__dict__)
-        ret['filters'] = [f.to_dict() for f in ret['filters']]
+        ret["filters"] = [f.to_dict() for f in ret["filters"]]
         return ret
 
 
@@ -112,13 +112,14 @@ def to_blocks(parsed_lines):
     filters = []
 
     for line in parsed_lines:
-        if line.type == 'comment':
-            if filters:
+        if line.type == "comment":
+            if filters and VAR_REGEXP.search(line.text):
+                # if comment is variable, and we have filters, complete block.
                 yield FiltersBlock(comments, filters)
                 comments = []
                 filters = []
             comments.append(line)
-        elif line.type == 'filter':
+        elif line.type == "filter":
             filters.append(line)
 
     if filters:

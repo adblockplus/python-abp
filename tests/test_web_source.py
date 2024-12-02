@@ -31,7 +31,7 @@ from abp.filters.sources import WebSource, NotFound
 @pytest.fixture
 def web_mock(request):
     """Replace urlopen with our test implementation."""
-    patcher = mock.patch('abp.filters.sources.urlopen')
+    patcher = mock.patch("abp.filters.sources.urlopen")
     ret = patcher.start()
     request.addfinalizer(patcher.stop)
     return ret
@@ -39,7 +39,7 @@ def web_mock(request):
 
 @pytest.fixture
 def http_source():
-    return WebSource('http')
+    return WebSource("http")
 
 
 def response_mock(encoding, data):
@@ -52,27 +52,28 @@ def response_mock(encoding, data):
 
 
 def test_fetch_file(web_mock, http_source):
-    web_mock.return_value = response_mock(None, b'! Line 1\n! Line 2')
-    assert list(http_source.get('//foo/bar.txt')) == ['! Line 1', '! Line 2']
+    web_mock.return_value = response_mock(None, b"! Line 1\n! Line 2")
+    assert list(http_source.get("//foo/bar.txt")) == ["! Line 1", "! Line 2"]
 
 
 def test_charset_handling(web_mock, http_source):
-    web_mock.return_value = response_mock('latin-1', b'\xfc')
-    assert list(http_source.get('//foo/bar.txt')) == ['\xfc']
-    web_mock.return_value = response_mock('utf-8', b'\xc3\xbc')
-    assert list(http_source.get('//foo/bar.txt')) == ['\xfc']
-    web_mock.return_value = response_mock(None, b'\xc3\xbc')
-    assert list(http_source.get('//foo/bar.txt')) == ['\xfc']
+    web_mock.return_value = response_mock("latin-1", b"\xfc")
+    assert list(http_source.get("//foo/bar.txt")) == ["\xfc"]
+    web_mock.return_value = response_mock("utf-8", b"\xc3\xbc")
+    assert list(http_source.get("//foo/bar.txt")) == ["\xfc"]
+    web_mock.return_value = response_mock(None, b"\xc3\xbc")
+    assert list(http_source.get("//foo/bar.txt")) == ["\xfc"]
 
 
 def test_404(web_mock, http_source):
-    web_mock.side_effect = HTTPError('', 404, 'Not found', [], StringIO(b''))
+    web_mock.side_effect = HTTPError("", 404, "Not found", [], StringIO(b""))
     with pytest.raises(NotFound):
-        list(http_source.get('//foo/bar.txt'))
+        list(http_source.get("//foo/bar.txt"))
 
 
 def test_500(web_mock, http_source):
-    web_mock.side_effect = HTTPError('', 500, 'Internal Server Error', [],
-                                     StringIO(b''))
+    web_mock.side_effect = HTTPError(
+        "", 500, "Internal Server Error", [], StringIO(b"")
+    )
     with pytest.raises(HTTPError):
-        list(http_source.get('//foo/bar.txt'))
+        list(http_source.get("//foo/bar.txt"))

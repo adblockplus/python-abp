@@ -21,12 +21,12 @@ import re
 from collections import namedtuple
 
 __all__ = [
-    'FilterAction',
-    'FilterOption',
-    'SelectorType',
-    'ParseError',
-    'parse_filterlist',
-    'parse_line',
+    "FilterAction",
+    "FilterOption",
+    "SelectorType",
+    "ParseError",
+    "parse_filterlist",
+    "parse_line",
 ]
 
 
@@ -52,60 +52,60 @@ class ParseError(Exception):
 class SelectorType:
     """Selector type constants."""
 
-    URL_PATTERN = 'url-pattern'  # Normal URL patterns.
-    URL_REGEXP = 'url-regexp'    # Regular expressions for URLs.
-    CSS = 'css'                  # CSS selectors for hiding filters.
-    XCSS = 'extended-css'        # Extended CSS selectors (to emulate CSS4).
-    ABP_SIMPLE = 'abp-simple'    # Simplified element hiding syntax.
-    SNIPPET = 'snippet'          # Snippet to run on the page
+    URL_PATTERN = "url-pattern"  # Normal URL patterns.
+    URL_REGEXP = "url-regexp"  # Regular expressions for URLs.
+    CSS = "css"  # CSS selectors for hiding filters.
+    XCSS = "extended-css"  # Extended CSS selectors (to emulate CSS4).
+    ABP_SIMPLE = "abp-simple"  # Simplified element hiding syntax.
+    SNIPPET = "snippet"  # Snippet to run on the page
 
 
 class FilterAction:
     """Filter action constants."""
 
-    BLOCK = 'block'              # Block the request.
-    ALLOW = 'allow'              # Allow the request (whitelist).
-    HIDE = 'hide'                # Hide selected element(s).
-    SHOW = 'show'                # Show selected element(s) (whitelist).
+    BLOCK = "block"  # Block the request.
+    ALLOW = "allow"  # Allow the request (whitelist).
+    HIDE = "hide"  # Hide selected element(s).
+    SHOW = "show"  # Show selected element(s) (whitelist).
 
 
 class FilterOption:
     """Filter option constants."""
 
     # Resource types.
-    OTHER = 'other'
-    SCRIPT = 'script'
-    IMAGE = 'image'
-    STYLESHEET = 'stylesheet'
-    OBJECT = 'object'
-    SUBDOCUMENT = 'subdocument'
-    DOCUMENT = 'document'
-    WEBSOCKET = 'websocket'
-    WEBRTC = 'webrtc'
-    PING = 'ping'
-    XMLHTTPREQUEST = 'xmlhttprequest'
-    OBJECT_SUBREQUEST = 'object-subrequest'
-    MEDIA = 'media'
-    FONT = 'font'
-    POPUP = 'popup'
-    GENERICBLOCK = 'genericblock'
-    ELEMHIDE = 'elemhide'
-    GENERICHIDE = 'generichide'
+    OTHER = "other"
+    SCRIPT = "script"
+    IMAGE = "image"
+    STYLESHEET = "stylesheet"
+    OBJECT = "object"
+    SUBDOCUMENT = "subdocument"
+    DOCUMENT = "document"
+    WEBSOCKET = "websocket"
+    WEBRTC = "webrtc"
+    PING = "ping"
+    XMLHTTPREQUEST = "xmlhttprequest"
+    OBJECT_SUBREQUEST = "object-subrequest"
+    MEDIA = "media"
+    FONT = "font"
+    POPUP = "popup"
+    GENERICBLOCK = "genericblock"
+    ELEMHIDE = "elemhide"
+    GENERICHIDE = "generichide"
 
     # Deprecated resource types.
-    BACKGROUND = 'background'
-    XBL = 'xbl'
-    DTD = 'dtd'
+    BACKGROUND = "background"
+    XBL = "xbl"
+    DTD = "dtd"
 
     # Other options.
-    MATCH_CASE = 'match-case'
-    DOMAIN = 'domain'
-    THIRD_PARTY = 'third-party'
-    COLLAPSE = 'collapse'
-    SITEKEY = 'sitekey'
-    DONOTTRACK = 'donottrack'
-    CSP = 'csp'
-    REWRITE = 'rewrite'
+    MATCH_CASE = "match-case"
+    DOMAIN = "domain"
+    THIRD_PARTY = "third-party"
+    COLLAPSE = "collapse"
+    SITEKEY = "sitekey"
+    DONOTTRACK = "donottrack"
+    CSP = "csp"
+    REWRITE = "rewrite"
 
 
 def _option_list_to_dict(options):
@@ -123,8 +123,8 @@ def _option_list_to_dict(options):
 
     """
     result = dict(options)
-    if 'domain' in result:
-        result['domain'] = _option_list_to_dict(result['domain'])
+    if "domain" in result:
+        result["domain"] = _option_list_to_dict(result["domain"])
 
     return result
 
@@ -144,10 +144,10 @@ def _to_dict(line):
 
     """
     result = dict(line._asdict())
-    if 'options' in result:
-        result['options'] = _option_list_to_dict(result['options'])
+    if "options" in result:
+        result["options"] = _option_list_to_dict(result["options"])
 
-    result['type'] = line.__class__.__name__
+    result["type"] = line.__class__.__name__
 
     return result
 
@@ -181,36 +181,44 @@ def _line_type(name, field_names, format_string):
     return lt
 
 
-Header = _line_type('Header', 'version', '[{.version}]')
-EmptyLine = _line_type('EmptyLine', '', '')
-Comment = _line_type('Comment', 'text', '! {.text}')
-Metadata = _line_type('Metadata', 'key value', '! {0.key}: {0.value}')
-Filter = _line_type('Filter', 'text selector action options', '{.text}')
-Include = _line_type('Include', 'target', '%include {0.target}%')
+Header = _line_type("Header", "version", "[{.version}]")
+EmptyLine = _line_type("EmptyLine", "", "")
+Comment = _line_type("Comment", "text", "! {.text}")
+Metadata = _line_type("Metadata", "key value", "! {0.key}: {0.value}")
+Filter = _line_type("Filter", "text selector action options", "{.text}")
+Include = _line_type("Include", "target", "%include {0.target}%")
 
 
-METADATA_REGEXP = re.compile(r'\s*!\s*([\w\-\s]*\w)\s*:\s*(.*)')
-INCLUDE_REGEXP = re.compile(r'%include\s+(.+)%')
-HEADER_REGEXP = re.compile(r'\[(Adblock(?:\s*Plus\s*[\d\.]+?)?)\]', flags=re.I)
+METADATA_REGEXP = re.compile(r"\s*!\s*([\w\-\s]*\w)\s*:\s*(.*)")
+INCLUDE_REGEXP = re.compile(r"%include\s+(.+)%")
+HEADER_REGEXP = re.compile(r"\[(Adblock(?:\s*Plus\s*[\d\.]+?)?)\]", flags=re.I)
 HIDING_FILTER_REGEXP = re.compile(r'^([^/|@"!]*?)#([@?$])?#(.+)$')
 FILTER_OPTIONS_REGEXP = re.compile(
-    r'\$(~?[\w-]+(?:=[^,]+)?(?:,~?[\w-]+(?:=[^,]+)?)*)$',
+    r"\$(~?[\w-]+(?:=[^,]+)?(?:,~?[\w-]+(?:=[^,]+)?)*)$",
 )
 
 
 def _parse_instruction(text):
     match = INCLUDE_REGEXP.match(text)
     if not match:
-        raise ParseError('Unrecognized instruction', text)
+        raise ParseError("Unrecognized instruction", text)
     return Include(match.group(1))
 
 
 def _parse_option(option):
-    if '=' in option:
-        return option.split('=', 1)
-    if option.startswith('~'):
+    if "=" in option:
+        return option.split("=", 1)
+    if option.startswith("~"):
         return option[1:], False
     return option, True
+
+
+def _unparse_option(option):
+    name, value = option
+    if value is True:
+        return name
+    else:
+        return f"~{name}"
 
 
 def _parse_filter_option(option):
@@ -218,15 +226,27 @@ def _parse_filter_option(option):
 
     # Handle special cases of multivalued options.
     if name == FilterOption.DOMAIN:
-        value = [_parse_option(o) for o in value.split('|')]
+        value = [_parse_option(o) for o in value.split("|")]
     elif name == FilterOption.SITEKEY:
-        value = value.split('|')
+        value = value.split("|")
 
     return name, value
 
 
+def __unparse_filter_option(option):
+    name, value = option
+    # handle special case for multivalued options.
+    if isinstance(value, list):
+        opt_v = []
+        for item in value:
+            opt_v.append(_unparse_option(item))
+        return (name, opt_v)  # leave domains in list format for later
+    else:
+        return _unparse_option(option)
+
+
 def _parse_filter_options(options):
-    return [_parse_filter_option(o) for o in options.split(',')]
+    return [_parse_filter_option(o) for o in options.split(",")]
 
 
 def _parse_blocking_filter(text):
@@ -236,39 +256,38 @@ def _parse_blocking_filter(text):
     options = []
     selector = text
 
-    if selector.startswith('@@'):
+    if selector.startswith("@@"):
         action = FilterAction.ALLOW
         selector = selector[2:]
 
-    if '$' in selector:
+    if "$" in selector:
         opt_match = FILTER_OPTIONS_REGEXP.search(selector)
         if opt_match:
-            selector = selector[:opt_match.start(0)]
+            selector = selector[: opt_match.start(0)]
             options = _parse_filter_options(opt_match.group(1))
 
-    if (len(selector) > 1
-            and selector.startswith('/') and selector.endswith('/')):
-        selector = {'type': SelectorType.URL_REGEXP, 'value': selector[1:-1]}
+    if len(selector) > 1 and selector.startswith("/") and selector.endswith("/"):
+        selector = {"type": SelectorType.URL_REGEXP, "value": selector[1:-1]}
     else:
-        selector = {'type': SelectorType.URL_PATTERN, 'value': selector}
+        selector = {"type": SelectorType.URL_PATTERN, "value": selector}
 
     return Filter(text, selector, action, options)
 
 
 def _parse_hiding_filter(text, domain, type_flag, selector_value):
-    selector = {'type': SelectorType.CSS, 'value': selector_value}
+    selector = {"type": SelectorType.CSS, "value": selector_value}
     action = FilterAction.HIDE
     options = []
 
-    if type_flag == '@':
+    if type_flag == "@":
         action = FilterAction.SHOW
-    elif type_flag == '?':
-        selector['type'] = SelectorType.XCSS
-    elif type_flag == '$':
-        selector['type'] = SelectorType.SNIPPET
+    elif type_flag == "?":
+        selector["type"] = SelectorType.XCSS
+    elif type_flag == "$":
+        selector["type"] = SelectorType.SNIPPET
 
     if domain:
-        domains = [_parse_option(d) for d in domain.split(',')]
+        domains = [_parse_option(d) for d in domain.split(",")]
         options.append((FilterOption.DOMAIN, domains))
 
     return Filter(text, selector, action, options)
@@ -288,14 +307,63 @@ def parse_filter(text):
         Parsed filter.
 
     """
-    if '#' in text:
+    if "#" in text:
         match = HIDING_FILTER_REGEXP.search(text)
         if match:
             return _parse_hiding_filter(text, *match.groups())
     return _parse_blocking_filter(text)
 
 
-def parse_line(line, position='body'):
+def unparse_filter(filter: Filter):
+    # Figure out the filter type
+    if filter.selector["type"] == SelectorType.XCSS:
+        type_flag = "#?#"
+        filter_type = "hide"
+    elif filter.selector["type"] == SelectorType.SNIPPET:
+        type_flag = "#$#"
+        filter_type = "hide"
+    elif filter.action == FilterAction.HIDE:
+        type_flag = "##"
+        filter_type = "hide"
+    elif filter.action == FilterAction.SHOW:
+        type_flag = "#@#"
+        filter_type = "hide"
+    elif filter.action == FilterAction.ALLOW:
+        type_flag = "@@"
+        filter_type = "url"
+    elif filter.action == FilterAction.BLOCK:
+        type_flag = ""
+        filter_type = "url"
+    # figure out the Selector
+    filter_base = f"{type_flag}{filter.selector["value"]}"
+    # figure out the options
+    options = []
+    for option in filter.options:  # list[tuple]
+        options.append(__unparse_filter_option(option))
+    # return early if no options
+    if not options:
+        return f"{filter_base}"
+    options_str = ""
+    for option in options:
+        options_str += "," if options_str else ""  # add comma if not empty
+        if isinstance(option, tuple):
+            # this is the domains list
+            key, value = option
+            if filter_type == "url":
+                options_str += f"{key}={"|".join(value)}"
+            elif filter_type == "hide":
+                options_str += ",".join(value)
+        else:
+            options_str += option
+    # I know, too many ifs, but re bulding the filter has a lot of conditions.
+    # No build the final filter
+    if filter_type == "url":
+        return f"{filter_base}${options_str}"
+    elif filter_type == "hide":
+        return f"{options_str}{filter_base}"
+
+
+def parse_line(line, position="body"):
     """Parse one line of a filter list.
 
     The types of lines that that the parser recognizes depend on the position.
@@ -329,32 +397,32 @@ def parse_line(line, position='body'):
         ParseError: If the line can't be parsed.
 
     """
-    positions = {'body', 'start', 'metadata'}
+    positions = {"body", "start", "metadata"}
     if position not in positions:
-        raise ValueError('position should be one of {}'.format(positions))
+        raise ValueError("position should be one of {}".format(positions))
 
-    if isinstance(line, type(b'')):
-        line = line.decode('utf-8')
+    if isinstance(line, type(b"")):
+        line = line.decode("utf-8")
 
     stripped = line.strip()
 
-    if stripped == '':
+    if stripped == "":
         return EmptyLine()
 
-    if position == 'start':
+    if position == "start":
         match = HEADER_REGEXP.search(line)
         if match:
             return Header(match.group(1))
 
-    if stripped.startswith('!'):
+    if stripped.startswith("!"):
         match = METADATA_REGEXP.match(line)
         if match:
             key, value = match.groups()
-            if position != 'body' or key.lower() == 'checksum':
+            if position != "body" or key.lower() == "checksum":
                 return Metadata(key, value)
         return Comment(stripped[1:].lstrip())
 
-    if stripped.startswith('%include') and stripped.endswith('%'):
+    if stripped.startswith("%include") and stripped.endswith("%"):
         return _parse_instruction(stripped)
 
     return parse_filter(stripped)
@@ -381,15 +449,15 @@ def parse_filterlist(lines):
         If `lines` is not iterable.
 
     """
-    position = 'start'
+    position = "start"
 
     for line in lines:
         parsed_line = parse_line(line, position)
         yield parsed_line
 
-        if position != 'body' and parsed_line.type in {'header', 'metadata'}:
+        if position != "body" and parsed_line.type in {"header", "metadata"}:
             # Continue parsing metadata until it's over...
-            position = 'metadata'
+            position = "metadata"
         else:
             # ...then switch to parsing the body.
-            position = 'body'
+            position = "body"

@@ -7,10 +7,22 @@
 ! Example block 1
 !:baz=some_tricky?variable=with&funny=chars#and-stuff
 ! Another comment
-||block.ing/filter$domain=foo.com|~bar.com
+||block.ing/filter$popup,~image,domain=foo.com|~bar.com
 white.list.ing#@#hiding.filter
 ! Another block
 @@whateve.rs
-! Snippet filters with non-ascii charcters
+! Snippet filters with non-ascii characters
 news.de#$#abort-current-inline-script Math.floor /[ం]\\W*Ｔ/
 foo.com,www.foo.com#$#hide-if-contains 广告
+!:foo=bar2
+! Example block 2
+!:baz=some_tricky?variable=with&funny=chars#and-stuff
+! Some other comment
+@@||block.ing/filter$domain=foo.com|~bar.com
+white.list.ing##hiding.filter
+!:foo=bar3
+@@watevs.lol
+! more more more within block
+@@Ohno.js
+! test XSS filters
+ajaxshowtime.com#?#div:-abp-properties(content: "Advertentie";)

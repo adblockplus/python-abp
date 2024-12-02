@@ -25,7 +25,7 @@ except ImportError:  # pragma: no py2 cover
     from urllib.request import urlopen
     from urllib.error import HTTPError
 
-__all__ = ['NotFound', 'FSSource', 'TopSource', 'WebSource']
+__all__ = ["NotFound", "FSSource", "TopSource", "WebSource"]
 
 
 class NotFound(Exception):
@@ -50,13 +50,13 @@ class FSSource(object):
 
     is_inheritable = True
 
-    def __init__(self, root_path, encoding='utf-8'):
+    def __init__(self, root_path, encoding="utf-8"):
         root_path = path.abspath(root_path)
         self.root_path = root_path
         self.encoding = encoding
 
     def _resolve_path(self, path_in_source):
-        parts = path_in_source.split('/')
+        parts = path_in_source.split("/")
         full_path = path.abspath(path.join(self.root_path, *parts))
         if not full_path.startswith(self.root_path):
             raise ValueError("Invalid path: '{}'".format(path_in_source))
@@ -101,8 +101,8 @@ class TopSource(FSSource):
 
     is_inheritable = False
 
-    def __init__(self, encoding='utf-8'):
-        super(TopSource, self).__init__('.', encoding)
+    def __init__(self, encoding="utf-8"):
+        super(TopSource, self).__init__(".", encoding)
 
     def _resolve_path(self, path_in_source):
         return path_in_source
@@ -121,10 +121,10 @@ class TopSource(FSSource):
             Lines in the file/ from stdin.
 
         """
-        if path_in_source == '-':
+        if path_in_source == "-":
             lines = sys.stdin.readlines()
             for line in lines:
-                yield line.rstrip('\n')
+                yield line.rstrip("\n")
         else:
             lines = super(TopSource, self).get(path_in_source)
             for line in lines:
@@ -145,7 +145,7 @@ class WebSource(object):
 
     is_inheritable = False
 
-    def __init__(self, protocol, default_encoding='utf-8'):
+    def __init__(self, protocol, default_encoding="utf-8"):
         self.protocol = protocol
         self.default_encoding = default_encoding
 
@@ -163,19 +163,21 @@ class WebSource(object):
             Lines of the file.
 
         """
-        url = '{}:{}'.format(self.protocol, path_in_source)
+        url = "{}:{}".format(self.protocol, path_in_source)
         try:
             response = urlopen(url)
             info = response.info()
             # info.getparam became info.get_param in Python 3 so we'll
             # try both.
-            get_param = (getattr(info, 'get_param', None)
-                         or getattr(info, 'getparam', None))
-            encoding = get_param('charset') or self.default_encoding
+            get_param = getattr(info, "get_param", None) or getattr(
+                info, "getparam", None
+            )
+            encoding = get_param("charset") or self.default_encoding
             for line in response:
                 yield line.decode(encoding).rstrip()
         except HTTPError as err:
             if err.code == 404:
-                raise NotFound("HTTP 404 Not found: '{}:{}'"
-                               .format(self.protocol, path_in_source))
+                raise NotFound(
+                    "HTTP 404 Not found: '{}:{}'".format(self.protocol, path_in_source)
+                )
             raise err

@@ -13,9 +13,27 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Tools for running statistics related to filters."""
+"""Tests for abp.filters.blocks."""
 
-from .filterhits import load_filterhit_statistics
+from __future__ import unicode_literals
+
+import os
+
+import pytest
+
+from abp.filters.parser import unparse_filter, parse_filterlist
+
+DATA_PATH = os.path.join(os.path.dirname(__file__), "data")
 
 
-__all__ = ["load_filterhit_statistics"]
+@pytest.fixture()
+def fl_lines():
+    with open(os.path.join(DATA_PATH, "filterlist.txt")) as f:
+        return list(parse_filterlist(f))
+
+
+def test_unparse_filter(fl_lines):
+    for line in fl_lines:
+        if line.type == "filter":
+            unparsed = unparse_filter(line)
+            assert unparsed == line.text
