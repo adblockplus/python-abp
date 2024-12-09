@@ -335,7 +335,7 @@ def unparse_filter(filter: Filter):
         type_flag = ""
         filter_type = "url"
     # figure out the Selector
-    filter_base = f"{type_flag}{filter.selector["value"]}"
+    filter_base = f"{type_flag}{filter.selector['value']}"
     # figure out the options
     options = []
     for option in filter.options:  # list[tuple]
@@ -350,7 +350,7 @@ def unparse_filter(filter: Filter):
             # this is the domains list
             key, value = option
             if filter_type == "url":
-                options_str += f"{key}={"|".join(value)}"
+                options_str += f"{key}={'|'.join(value)}"
             elif filter_type == "hide":
                 options_str += ",".join(value)
         else:
